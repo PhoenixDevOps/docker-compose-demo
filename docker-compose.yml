@@ -8,17 +8,45 @@ data:
   image: gliderlabs/alpine
   command: echo "Data Container"
   volumes:
-    - /var/lib/postgresql/data/pgdata
+    - /Users/josh/repos/abs-php-container/app:/data
   labels:
     org.bibles.role: "Data Container"
+
+web:
+  image: dylanlindgren/docker-laravel-nginx
+  privileged: true
+  volumes_from:
+    - data
+  ports:
+    - "80:80"
+  links:
+    - app:fpm
+  labels:
+    org.bibles.role: "Reverse Proxy"
+
+app:
+  build: ./app
+  #image: dylanlindgren/docker-laravel-phpfpm
+  privileged: true
+  volumes_from:
+    - data
+  links:
+    - db:db
+  environment:
+    - APP_DB_URI=postgresql://postgres:development@db:5432/postgres
+    - APP_DB_USERNAME=postgres
+    - APP_DB_PASSWORD=hello
+    - APP_ENVIRONMENT==dev
+  labels:
+    org.bibles.role: "App"
 
 # DEFINE A POSTGRES DATABASE CONTAINER
 # This container runs the database.  It does not automatically configure any database.
 # We'll need a separate container to connect to the database and execute code accordingly.
 db:
   image: postgres
-  volumes_from:
-    - data
+  volumes:
+    - /var/lib/postgresql/data/pgdata
   environment:
     - PGDATA=/var/lib/postgresql/data/pgdata
     - POSTGRES_PASSWORD=hello
@@ -26,19 +54,3 @@ db:
     - "5432:5432"
   labels:
     org.bibles.role: "Database"
-
-
-# app:
-#   build: ./php-app
-#   restart: always
-#   ports:
-#     - "3000:3000"
-#   links:
-#     - db:db
-#   environment:
-#     - APP_DB_URI=postgresql://postgres:development@db:5432/postgres
-#     - APP_DB_USERNAME=postgres
-#     - APP_DB_PASSWORD=hello
-#     - APP_ENVIRONMENT==dev
-#   labels:
-#     org.bibles.role: "App"

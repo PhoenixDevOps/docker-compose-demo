@@ -12,8 +12,13 @@ data:
   labels:
     org.bibles.role: "Data Container"
 
+# DEFINE A REVERSE-PROXY (WEB SERVER) -- NGINX
+# His job is to receive all incoming traffic and forward it to the PHP "app" container
+# To update configuration here, you'll need to remove the existing image for this Container
+# (dockercomposedemo_web) and re-run "docker-compose up"
 web:
-  image: dylanlindgren/docker-laravel-nginx
+  build: ./web
+  #image: dylanlindgren/docker-laravel-nginx
   privileged: true
   volumes_from:
     - data
@@ -24,6 +29,8 @@ web:
   labels:
     org.bibles.role: "Reverse Proxy"
 
+# DEFINE THE PHP SERVER
+# Listens for incoming requests from nginx.
 app:
   build: ./app
   #image: dylanlindgren/docker-laravel-phpfpm

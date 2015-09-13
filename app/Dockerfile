@@ -1,6 +1,6 @@
 # PHP Laravel Container
 # - Inspired by https://hub.docker.com/r/dylanlindgren/docker-laravel-phpfpm/
-FROM debian:jessie
+FROM ubuntu:trusty
 
 # Install PHP-FPM and popular/laravel required extensions
 RUN apt-get update -y && \
@@ -43,4 +43,5 @@ VOLUME ["/data"]
 
 EXPOSE 9000
 
-ENTRYPOINT ["/usr/sbin/php5-fpm", "-F"]
+#ENTRYPOINT ["/usr/sbin/php5-fpm", "-F"]
+CMD ["/bin/bash"]
